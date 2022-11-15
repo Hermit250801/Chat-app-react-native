@@ -65,6 +65,7 @@ export default function Messages({
     const daysBetween = Math.abs(
       currentDate.getDate() - lastMessageTime.getDate()
     );
+
     if (daysBetween === 0) {
       const hours = parseInt(
         Moment(item.createdAt).format("HH:mm").toString().split(":")[0]
@@ -75,8 +76,9 @@ export default function Messages({
         .split(":")[1];
       if (hours >= 12) {
         return `${hours}:${mintues} PM`;
+      } else {
+        return `${hours}:${mintues} AM`;
       }
-      return `${hours}:${mintues} AM`;
     } else if (daysBetween <= 7) {
       return `${daysBetween} ngày trước`;
     } else {
@@ -169,7 +171,6 @@ export default function Messages({
                           <Text>{item.content}</Text>
                         </TouchableOpacity>
                         <Text style={[styles.sendTimeMessage]}>
-                          {Moment(item.createdAt).format("HH:mm").toString()}{" "}
                           {handleLastMessageAt(item)}
                         </Text>
                       </View>
@@ -225,7 +226,6 @@ export default function Messages({
                             styles.receiverSendTime,
                           ]}
                         >
-                          {Moment(item.createdAt).format("HH:mm").toString()}{" "}
                           {handleLastMessageAt(item)}
                         </Text>
                       </View>
@@ -237,10 +237,9 @@ export default function Messages({
           )) || (
             <TouchableWithoutFeedback onPress={handleTouchOutside}>
               <View style={styles.messageContainer}>
-                {groupMessages &&
-                  groupMessages.messages.map((message) => {
-                    return (
-                      <View style={[styles.positionRelative]} key={message.id}>
+                {groupMessages.messages &&
+                  groupMessages.messages.map((message) =>  (
+                    <View style={[styles.positionRelative]} key={message.id}>
                         <View
                           style={[
                             styles.row,
@@ -298,8 +297,8 @@ export default function Messages({
                           </Text>
                         </View>
                       </View>
-                    );
-                  })}
+                  ))
+                }
               </View>
             </TouchableWithoutFeedback>
           )}

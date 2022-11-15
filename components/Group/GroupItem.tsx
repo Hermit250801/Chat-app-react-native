@@ -31,6 +31,7 @@ import { AuthContext } from "../../utils/context/AuthContext";
 
 import { CDN_URL } from "../../utils/constants";
 import Moment from "moment";
+import { updateType } from "../../store/selectedSlice";
 
 export default function GroupItem({ group, navigation }) {
   const groupItem = useSelector((state: RootState) =>
@@ -42,6 +43,7 @@ export default function GroupItem({ group, navigation }) {
     undefined;
 
   const handleNavigationGroupMessage = () => {
+    dispatch(updateType("group"));
     navigation.navigate("ChatGroup", {
       group: groupItem,
     });

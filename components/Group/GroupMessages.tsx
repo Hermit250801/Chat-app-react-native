@@ -48,6 +48,7 @@ export default function GroupMessages({ route, navigation }) {
   const groupMessages = useSelector((state: RootState) =>
     selectGroupMessage(state, parseInt(group.id!))
   );
+
   useEffect(() => {
     dispatch(updateType("group"));
     if(!groupItem.id) {

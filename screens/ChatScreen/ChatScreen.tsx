@@ -41,7 +41,6 @@ import { LogBox } from "react-native";
 import { createMessage } from "../../utils/api";
 import { fetchGroupsThunk } from "../../store/groupSlice";
 
-
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
 ]);
@@ -57,20 +56,14 @@ export default function ChatScreen({ navigation, route }) {
 
   const dispatch = useDispatch<AppDispatch>();
 
-
   const { messageCounter } = useSelector(
     (state: RootState) => state.systemMessages
   );
-
 
   const selectedType = useSelector(
     (state: RootState) => state.selectedConversationType.type
   );
 
-  const groups = useSelector((state: RootState) => state.groups.groups)
-
-  console.log("Groups: ", groups)
-;
   const sendMessage = async (values) => {
     const trimmedContent = values.message.trim();
     if (!conversationId) return;

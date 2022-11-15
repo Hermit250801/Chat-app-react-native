@@ -32,18 +32,19 @@ import {
 import ModalAddMember from "../ModalAddMember/ModalAddMember";
 import { AuthContext } from "../../utils/context/AuthContext";
 import { CDN_URL } from "../../utils/constants";
+import * as ImagePicker from "expo-image-picker";
 
 export default function GroupInfo({ navigation, route }) {
   const { group } = route.params;
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const { user } = useContext(AuthContext);
   const [visible, setVisible] = useState(false);
   const socket = useContext(SocketContext);
   const [users, setUsers] = useState([]);
   const [usersGroup, setUsersGroup] = useState([]);
 
-  const groupItem = useSelector((state: RootState) =>
-    selectGroupById(state, parseInt(group.id!))
+  const groupItem = useSelector((state) =>
+    selectGroupById(state, parseInt(group.id))
   );
 
   const avatar =
@@ -62,14 +63,44 @@ export default function GroupInfo({ navigation, route }) {
 
   const handleAddUserGroup = () => {};
 
+  const pickAvatar = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (result.cancelled === false) {
+      let localUri = result.uri;
+      let filename = localUri.split("/").pop();
+
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`;
+      const formData = new FormData();
+      formData.append("avatar", { uri: localUri, name: filename, type });
+
+      const { data: updatedUser } = await updateUserProfile(formData);
+      console.log(updatedUser)
+      setImagePreview(result.uri);
+    }
+
+    if (hasGalleryPermission === false) {
+      setOpenModalError(true);
+    }
+  };
+
   useEffect(() => {
     socket.emit("onGroupJoin", { groupId: groupItem.id });
-    socket.on("onGroupUserAdd", (payload: AddGroupUserMessagePayload) => {
+    socket.on("onGroupUserAdd", (payload) => {
       console.log("onGroupUserAdd");
       console.log(payload);
       dispatch(addGroup(payload.group));
     });
-    socket.on("onGroupUserAdd", (payload: AddGroupUserMessagePayload) => {
+    socket.on("onGroupUserAdd", (payload) => {
       console.log("onGroupUserAdd");
       console.log(payload);
       dispatch(addGroup(payload.group));
@@ -77,7 +108,7 @@ export default function GroupInfo({ navigation, route }) {
     });
     socket.on(
       "onGroupRecipientRemoved",
-      ({ group }: RemoveGroupUserMessagePayload) => {
+      ({ group }) => {
         console.log("onGroupRecipientRemoved");
         dispatch(updateGroup({ group }));
         dispatch(fetchGroupsThunk());
@@ -85,7 +116,7 @@ export default function GroupInfo({ navigation, route }) {
     );
     socket.on(
       "onGroupParticipantLeft",
-      ({ group, userId }: GroupParticipantLeftPayload) => {
+      ({ group, userId }) => {
         console.log("onGroupParticipantLeft received");
         dispatch(updateGroup({ group }));
         if (userId === user?.id) {
