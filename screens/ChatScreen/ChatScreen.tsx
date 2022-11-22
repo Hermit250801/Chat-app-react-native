@@ -218,6 +218,7 @@ export default function ChatScreen({ navigation, route }) {
           currentUser={currentUser}
           scrollDown={scrollDown}
           groupMessages={null}
+          navigation={navigation}
         />
 
         <View style={styles.footer}>

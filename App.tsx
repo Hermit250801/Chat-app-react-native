@@ -21,6 +21,8 @@ import Toast from 'react-native-toast-message';
 import GroupMessages from "./components/Group/GroupMessages";
 import GroupInfo from "./components/Group/GroupInfo";
 import MemberScreen from "./screens/GroupScreen/MemberScreen";
+import ImageComponent from "./components/Image/ImageComponent";
+import ProfileComponent from "./components/ProfileComponent/ProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -71,6 +73,8 @@ export default function App() {
                animation:'slide_from_right'
             }} />
             <Stack.Screen name="MemberInfo" component={MemberScreen} />
+            <Stack.Screen name="Image" component={ImageComponent} />
+            <Stack.Screen name="FriendInfo" component={ProfileComponent} />
           </Stack.Navigator>
         </NavigationContainer>
       </AppWithProviders>

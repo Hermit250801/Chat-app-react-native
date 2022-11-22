@@ -9,6 +9,7 @@ import {
   Touchable,
   TouchableWithoutFeedback,
   Image,
+  Pressable,
 } from "react-native";
 import { useRef, useState, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,6 +40,7 @@ export default function Messages({
   currentUser,
   scrollDown,
   groupMessages,
+  navigation
 }) {
   const [openModal, setOpenModal] = useState(null);
   const [editMessage, setEditMessage] = useState(null);
@@ -117,6 +119,13 @@ export default function Messages({
     setOpenModal(null);
   };
 
+  const handleOpenImage = (image) => {
+    navigation.navigate("Image", {
+      image: image,
+      navigation: navigation
+    })
+  }
+
   const onSubmitEditText = (e, item) => {
     setEditMessage(null);
     console.log(e.nativeEvent.text);
@@ -181,13 +190,15 @@ export default function Messages({
                           <Text>{item.content}</Text>
                           <View style={styles.attachments}>
                             {item.attachments.map((image) => (
-                              <Image
-                                key={image.key}
-                                source={{
-                                  uri: CDN_URL.ORIGINAL.concat(image.key),
-                                }}
-                                style={styles.attachment}
-                              />
+                              <Pressable onPress={() => handleOpenImage(image)}>
+                                <Image
+                                  key={image.key}
+                                  source={{
+                                    uri: CDN_URL.ORIGINAL.concat(image.key),
+                                  }}
+                                  style={styles.attachment}
+                                />
+                              </Pressable>
                             ))}
                           </View>
                         </TouchableOpacity>
@@ -222,13 +233,17 @@ export default function Messages({
 
                                 <View style={styles.attachments}>
                                   {item.attachments.map((image) => (
-                                    <Image
-                                      key={image.key}
-                                      source={{
-                                        uri: CDN_URL.ORIGINAL.concat(image.key),
-                                      }}
-                                      style={styles.avatar}
-                                    />
+                                    <Pressable  onPress={() => handleOpenImage(image)}>
+                                      <Image
+                                        key={image.key}
+                                        source={{
+                                          uri: CDN_URL.ORIGINAL.concat(
+                                            image.key
+                                          ),
+                                        }}
+                                        style={styles.avatar}
+                                      />
+                                    </Pressable>
                                   ))}
                                 </View>
                               </View>
@@ -353,7 +368,7 @@ const styles = StyleSheet.create({
   attachments: {
     flexDirection: "row",
     maxWidth: "80%",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
   },
   attachment: {
     height: 80,

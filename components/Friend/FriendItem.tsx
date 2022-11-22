@@ -8,9 +8,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { selectConversationById } from "../../store/conversationSlice";
 import { AuthContext } from "../../utils/context/AuthContext";
-import { fetchFriendsThunk, removeFriendThunk } from "../../store/friends/friendsThunk";
+import {
+  fetchFriendsThunk,
+  removeFriendThunk,
+} from "../../store/friends/friendsThunk";
 
-export default function FriendItem({ friend, navigation, handleDeleteFriend, friendId }) {
+export default function FriendItem({
+  friend,
+  navigation,
+  handleDeleteFriend,
+  friendId,
+}) {
   const avatar =
     (friend.profile !== null && CDN_URL.BASE.concat(friend.profile.avatar)) ||
     undefined;
@@ -24,7 +32,13 @@ export default function FriendItem({ friend, navigation, handleDeleteFriend, fri
   const handleRemoveFriend = () => {
     handleDeleteFriend(friendId);
     setOpenModal(false);
-  }
+  };
+
+  const handleViewFriendProfile = () => {
+    navigation.navigate("FriendInfo", {
+      user: friend,
+    });
+  };
 
   return (
     <Pressable onPress={() => setOpenModal(false)}>
@@ -36,7 +50,6 @@ export default function FriendItem({ friend, navigation, handleDeleteFriend, fri
           },
         ]}
         onLongPress={() => setOpenModal(!openModal)}
-        
       >
         <View style={styles.row}>
           <Image
@@ -76,17 +89,31 @@ export default function FriendItem({ friend, navigation, handleDeleteFriend, fri
       </Pressable>
 
       {openModal && (
-        <Pressable
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? "#c0c3c4" : "#ea3333",
-            },
-            styles.deleteFriendContainer
-          ]}
-          onPress={handleRemoveFriend}
-        >
-          <Text style={styles.textError}>Xóa bạn</Text>
-        </Pressable>
+        <View style={styles.modalContainer}>
+          <Pressable
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? "#c0c3c4" : "#ea3333",
+              },
+              styles.deleteFriendContainer,
+            ]}
+            onPress={handleRemoveFriend}
+          >
+            <Text style={styles.textError}>Xóa bạn</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? "#c0c3c4" : "transparent",
+              },
+              styles.profileFriendContainer,
+            ]}
+            onPress={handleViewFriendProfile}
+          >
+            <Text style={styles.text}>Xem profile</Text>
+          </Pressable>
+        </View>
       )}
     </Pressable>
   );
@@ -99,22 +126,38 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 12,
     paddingVertical: 12,
-    position: "relative"
+    position: "relative",
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
   },
-  deleteFriendContainer: {
-    backgroundColor: "#ea3333",
+  modalContainer: {
     position: "absolute",
     right: 100,
     bottom: 0,
     borderRadius: 10,
     zIndex: 999,
     elevation: 999,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  deleteFriendContainer: {
+    backgroundColor: "#ea3333",
+    borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 6
+    paddingVertical: 6,
+  },
+  profileFriendContainer: {
+    backgroundColor: "#757171",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   avatar: {
     width: 50,
@@ -139,4 +182,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  text: {
+    textAlign: "center",
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  }
 });
