@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, TextInput } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import FriendScreen from "./FriendScreen";
 import GroupScreen from "../GroupScreen/GroupScreen";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -7,11 +7,21 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import EvilIcons from "react-native-vector-icons/EvilIcons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import ModalAddFriend from "../../components/ModalAddFriend/ModalAddFriend";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { fetchFriendsThunk } from "../../store/friends/friendsThunk";
+import { SocketContext } from "../../utils/context/SocketContext";
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function ContactScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const socket = useContext(SocketContext)
+  useEffect(() => {
+    dispatch(fetchFriendsThunk());
+  }, [socket])
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>

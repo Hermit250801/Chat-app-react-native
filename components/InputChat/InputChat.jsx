@@ -11,17 +11,50 @@ import Entypo from "react-native-vector-icons/Entypo";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { Formik, useFormik } from "formik";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { selectType } from "../../store/selectedSlice";
-
+import * as ImagePicker from "expo-image-picker";
+import {
+  addAttachment,
+  incrementAttachmentCounter,
+} from "../../store/message-panel/messagePanelSlice";
+import IconPicker from "react-native-icon-picker";
 export default function InputChat({
   conversationId,
   sendMessage,
   scrollDown,
   sendTypingStatus,
 }) {
-  const conversationType = useSelector((state: RootState) => selectType(state))
+  const conversationType = useSelector((state) => selectType(state));
+  const { attachments, attachmentCounter } = useSelector(
+    (state) => state.messagePanel
+  );
+  const dispatch = useDispatch();
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (result.cancelled !== false) {
+      return;
+    }
+
+    let localUri = result.uri;
+    let filename = localUri.split("/").pop();
+
+    let match = /\.(\w+)$/.exec(filename);
+    let type = match ? `image/${match[1]}` : `image`;
+    const formData = new FormData();
+    formData.append("attchments", { uri: localUri, name: filename, type });
+    let localCounter = attachmentCounter;
+    dispatch(addAttachment({ id: localCounter++, file: formData }));
+    dispatch(incrementAttachmentCounter());
+  };
   return (
     <View style={{ position: "relative", flex: 1 }}>
       <Formik
@@ -65,7 +98,7 @@ export default function InputChat({
                   },
                   styles.zipBtn,
                 ]}
-                onPress={() => console.log("zip message")}
+                onPress={pickImage}
               >
                 <MaterialIcons name={"attach-file"} size={30} />
               </Pressable>
@@ -84,6 +117,7 @@ export default function InputChat({
           </View>
         )}
       </Formik>
+
     </View>
   );
 }
@@ -94,14 +128,16 @@ const styles = StyleSheet.create({
   },
   emoijContainer: {
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   container: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
+  iconPicker: {
 
+  },
   viewInputContainer: {
     flex: 1,
     backgroundColor: "#f5f7fa",

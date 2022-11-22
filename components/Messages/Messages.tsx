@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   Image,
 } from "react-native";
-import { useRef, useState, useContext } from "react";
+import { useRef, useState, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteMessage,
@@ -53,6 +53,10 @@ export default function Messages({
   const dispatch = useDispatch<AppDispatch>();
 
   const conversationType = useSelector((state: RootState) => selectType(state));
+
+  const { attachments, attachmentCounter } = useSelector(
+    (state: RootState) => state.messagePanel
+  );
 
   const avatar =
     (user.profile.avatar !== null &&
@@ -142,6 +146,12 @@ export default function Messages({
     setOpenModal(null);
   };
 
+  useEffect(() => {
+    attachments.forEach((image) => {
+      console.log("Attachment IMage: ", image);
+    });
+  }, []);
+
   return (
     <SafeAreaView style={styles.body}>
       <View style={{ flex: 6 }}>
@@ -169,6 +179,17 @@ export default function Messages({
                           style={[styles.message, styles.sender]}
                         >
                           <Text>{item.content}</Text>
+                          <View style={styles.attachments}>
+                            {item.attachments.map((image) => (
+                              <Image
+                                key={image.key}
+                                source={{
+                                  uri: CDN_URL.ORIGINAL.concat(image.key),
+                                }}
+                                style={styles.attachment}
+                              />
+                            ))}
+                          </View>
                         </TouchableOpacity>
                         <Text style={[styles.sendTimeMessage]}>
                           {handleLastMessageAt(item)}
@@ -194,9 +215,23 @@ export default function Messages({
                                 autoFocus
                               />
                             )) || (
-                              <Text style={styles.receiverText}>
-                                {item.content}
-                              </Text>
+                              <View>
+                                <Text style={styles.receiverText}>
+                                  {item.content}
+                                </Text>
+
+                                <View style={styles.attachments}>
+                                  {item.attachments.map((image) => (
+                                    <Image
+                                      key={image.key}
+                                      source={{
+                                        uri: CDN_URL.ORIGINAL.concat(image.key),
+                                      }}
+                                      style={styles.avatar}
+                                    />
+                                  ))}
+                                </View>
+                              </View>
                             )}
                           </View>
 
@@ -238,67 +273,65 @@ export default function Messages({
             <TouchableWithoutFeedback onPress={handleTouchOutside}>
               <View style={styles.messageContainer}>
                 {groupMessages.messages &&
-                  groupMessages.messages.map((message) =>  (
+                  groupMessages.messages.map((message) => (
                     <View style={[styles.positionRelative]} key={message.id}>
-                        <View
+                      <View
+                        style={[
+                          styles.row,
+                          (message.author.id !== user.id &&
+                            styles.senderContainer) ||
+                            styles.receiverContainer,
+                        ]}
+                      >
+                        {message.author.id !== user.id && (
+                          <Image
+                            source={
+                              (message.author.profile !== null && {
+                                uri: CDN_URL.BASE.concat(
+                                  message.author.profile.avatar
+                                ),
+                              }) ||
+                              require("../../assets/user.png")
+                            }
+                            style={styles.avatar}
+                          />
+                        )}
+
+                        <TouchableOpacity
                           style={[
-                            styles.row,
-                            (message.author.id !== user.id &&
-                              styles.senderContainer) ||
-                              styles.receiverContainer,
+                            styles.message,
+                            (message.author.id !== user.id && styles.sender) ||
+                              styles.receiver,
                           ]}
                         >
-                          {message.author.id !== user.id && (
-                            <Image
-                              source={
-                                (message.author.profile !== null && {
-                                  uri: CDN_URL.BASE.concat(
-                                    message.author.profile.avatar
-                                  ),
-                                }) ||
-                                require("../../assets/user.png")
-                              }
-                              style={styles.avatar}
-                            />
-                          )}
-
-                          <TouchableOpacity
-                            style={[
-                              styles.message,
-                              (message.author.id !== user.id &&
-                                styles.sender) ||
-                                styles.receiver,
-                            ]}
-                          >
-                            <Text
-                              style={styles.userNameText}
-                            >{`${message.author.firstName} ${message.author.lastName}`}</Text>
-                            <Text>{message.content}</Text>
-                          </TouchableOpacity>
-                          {message.author.id === user.id && (
-                            <Image
-                              source={
-                                (avatar && { uri: avatar }) ||
-                                require("../../assets/user.png")
-                              }
-                              style={styles.avatar}
-                            />
-                          )}
-                        </View>
-                        <View
-                          style={
-                            (message.author.id !== user.id &&
-                              styles.senderText) ||
-                            styles.receiverText
-                          }
-                        >
-                          <Text style={[styles.sendTimeMessage]}>
-                            {handleLastMessageAt(message)}
-                          </Text>
-                        </View>
+                          <Text
+                            style={styles.userNameText}
+                          >{`${message.author.firstName} ${message.author.lastName}`}</Text>
+                          <Text>{message.content}</Text>
+                        </TouchableOpacity>
+                        {message.author.id === user.id && (
+                          <Image
+                            source={
+                              (avatar && { uri: avatar }) ||
+                              require("../../assets/user.png")
+                            }
+                            style={styles.avatar}
+                          />
+                        )}
                       </View>
-                  ))
-                }
+                      <View
+                        style={
+                          (message.author.id !== user.id &&
+                            styles.senderText) ||
+                          styles.receiverText
+                        }
+                      >
+                        <Text style={[styles.sendTimeMessage]}>
+                          {handleLastMessageAt(message)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
               </View>
             </TouchableWithoutFeedback>
           )}
@@ -316,6 +349,16 @@ const styles = StyleSheet.create({
   },
   positionRelative: {
     position: "relative",
+  },
+  attachments: {
+    flexDirection: "row",
+    maxWidth: "80%",
+    flexWrap: "wrap"
+  },
+  attachment: {
+    height: 80,
+    width: 80,
+    marginLeft: 12,
   },
   row: {
     flexDirection: "row",

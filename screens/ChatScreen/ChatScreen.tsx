@@ -41,6 +41,8 @@ import { LogBox } from "react-native";
 import { createMessage } from "../../utils/api";
 import { fetchGroupsThunk } from "../../store/groupSlice";
 
+import EmojiSelector, { Categories } from "react-native-emoji-selector";
+
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
 ]);
@@ -238,6 +240,12 @@ export default function ChatScreen({ navigation, route }) {
             scrollDown={scrollDown}
             sendTypingStatus={sendTypingStatus}
           />
+          {/* <View style={styles.emojiContainer}>
+            <EmojiSelector
+              category={Categories.symbols}
+              onEmojiSelected={(emoji) => console.log(emoji)}
+            />
+          </View> */}
         </View>
       </View>
     </>
@@ -328,4 +336,8 @@ const styles = StyleSheet.create({
     left: 14,
     right: 14,
   },
+  emojiContainer: {
+    position: "absolute",
+    top: 0
+  }
 });

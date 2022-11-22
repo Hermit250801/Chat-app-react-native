@@ -29,6 +29,9 @@ import {
   toggleContextMenu,
   updateGroup,
 } from "../../store/groupSlice";
+
+import { updateGroupDetails } from "../../utils/api.ts"
+
 import ModalAddMember from "../ModalAddMember/ModalAddMember";
 import { AuthContext } from "../../utils/context/AuthContext";
 import { CDN_URL } from "../../utils/constants";
@@ -42,10 +45,13 @@ export default function GroupInfo({ navigation, route }) {
   const socket = useContext(SocketContext);
   const [users, setUsers] = useState([]);
   const [usersGroup, setUsersGroup] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const groupItem = useSelector((state) =>
     selectGroupById(state, parseInt(group.id))
   );
+
+  console.log("Group id: ", groupItem.id)
 
   const avatar =
     (groupItem.avatar !== null && CDN_URL.BASE.concat(groupItem.avatar)) ||
@@ -69,7 +75,6 @@ export default function GroupInfo({ navigation, route }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
     });
 
     console.log(result);
@@ -82,14 +87,15 @@ export default function GroupInfo({ navigation, route }) {
       let type = match ? `image/${match[1]}` : `image`;
       const formData = new FormData();
       formData.append("avatar", { uri: localUri, name: filename, type });
-
-      const { data: updatedUser } = await updateUserProfile(formData);
-      console.log(updatedUser)
       setImagePreview(result.uri);
-    }
 
-    if (hasGalleryPermission === false) {
-      setOpenModalError(true);
+      return await fetch(`${process.env.REACT_APP_API_URL}/groups/${groupItem.id}/details`, {
+        method: 'PATCH',
+        body: formData,
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      });
     }
   };
 
@@ -151,7 +157,7 @@ export default function GroupInfo({ navigation, route }) {
           <View>
             <Image
               source={
-                (avatar && { uri: avatar }) || require("../../assets/user.png")
+                (imagePreview && {uri: imagePreview} || avatar && { uri: avatar }) || require("../../assets/user.png")
               }
               style={styles.avatar}
             />
@@ -181,6 +187,7 @@ export default function GroupInfo({ navigation, route }) {
                   backgroundColor: pressed ? "#d9dfeb" : "transparent",
                 },
               ]}
+              onPress={() => pickAvatar()}
             >
               <View style={styles.btnAction}>
                 <AntDesign name="edit" size={30} />

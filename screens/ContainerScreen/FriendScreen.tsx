@@ -15,82 +15,107 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { AuthContext } from "../../utils/context/AuthContext";
 import { getAuthUser } from "../../utils/api";
-import { fetchFriendRequestThunk, fetchFriendsThunk } from "../../store/friends/friendsThunk";
+import {
+  fetchFriendRequestThunk,
+  fetchFriendsThunk,
+  removeFriendThunk,
+} from "../../store/friends/friendsThunk";
 import { SocketContext } from "../../utils/context/SocketContext";
-import { addFriendRequest, removeFriendRequest } from "../../store/friends/friendsSlice";
-import { AcceptFriendRequestResponse, FriendRequest } from "../../utils/types";
-import { selectConversationById } from "../../store/conversationSlice";
+import {
+  addFriendRequest,
+  removeFriend,
+  removeFriendRequest,
+} from "../../store/friends/friendsSlice";
+import {
+  AcceptFriendRequestResponse,
+  Friend,
+  FriendRequest,
+} from "../../utils/types";
 
 export default function FriendScreen({ navigation }) {
-  const { showContextMenu, friends, onlineFriends, friendRequests } = useSelector(
-    (state: RootState) => state.friends
-  );
+  const { showContextMenu, friends, onlineFriends, friendRequests } =
+    useSelector((state: RootState) => state.friends);
   const socket = useContext(SocketContext);
   const dispatch = useDispatch<AppDispatch>();
   const [countUnreadMsg, setCountUnreadMsg] = useState(0);
   const { user } = useContext(AuthContext);
 
-
-
   const handleCountUnreadMsg = () => {
-    friendRequests.forEach(item => {
-      if(item.receiver.id === user.id) {
-        setCountUnreadMsg(prev => prev + 1)
+    friendRequests.forEach((item) => {
+      if (item.receiver.id === user.id) {
+        setCountUnreadMsg((prev) => prev + 1);
       }
-    })
-  }
+    });
+  };
+
+  console.log(friends)
 
   useEffect(() => {
-    console.log('Registering all events for AppPage');
-    socket.on('onFriendRequestReceived', (payload: FriendRequest) => {
-      console.log('onFriendRequestReceived');
+    console.log("Registering all events for AppPage");
+    socket.emit("getOnlineFriends");
+    const interval = setInterval(() => {
+      socket.emit("getOnlineFriends");
+    }, 10000);
+    socket.on("onFriendRequestReceived", (payload: FriendRequest) => {
+      console.log("onFriendRequestReceived");
       console.log(payload);
       dispatch(addFriendRequest(payload));
       dispatch(fetchFriendRequestThunk());
     });
 
-    socket.on('onFriendRequestCancelled', (payload: FriendRequest) => {
-      console.log('onFriendRequestCancelled');
+    socket.on("onFriendRequestCancelled", (payload: FriendRequest) => {
+      console.log("onFriendRequestCancelled");
       console.log(payload);
       dispatch(removeFriendRequest(payload));
       dispatch(fetchFriendRequestThunk());
     });
 
     socket.on(
-      'onFriendRequestAccepted',
+      "onFriendRequestAccepted",
       (payload: AcceptFriendRequestResponse) => {
-        console.log('onFriendRequestAccepted');
+        console.log("onFriendRequestAccepted");
         dispatch(removeFriendRequest(payload.friendRequest));
-        socket.emit('getOnlineFriends');
+        socket.emit("getOnlineFriends");
         dispatch(fetchFriendRequestThunk());
       }
     );
 
-    socket.on('onFriendRequestRejected', (payload: FriendRequest) => {
-      console.log('onFriendRequestRejected');
+    socket.on("onFriendRemoved", (friend: Friend) => {
+      console.log("onFriendRemoved");
+      dispatch(removeFriend(friend));
+      socket.emit("getOnlineFriends");
+    });
+
+    socket.on("onFriendRequestRejected", (payload: FriendRequest) => {
+      console.log("onFriendRequestRejected");
       dispatch(removeFriendRequest(payload));
       dispatch(fetchFriendRequestThunk());
     });
 
     return () => {
-      console.log('Removing all event listeners');
-      socket.off('onFriendRequestCancelled');
-      socket.off('onFriendRequestRejected');
-      socket.off('onFriendRequestReceived');
-      socket.off('onFriendRequestAccepted');
+      console.log("Removing all event listeners");
+      socket.off("onFriendRequestCancelled");
+      socket.off("onFriendRequestRejected");
+      socket.off("onFriendRequestReceived");
+      socket.off("onFriendRequestAccepted");
+      socket.off("onFriendRemoved");
     };
   }, [socket]);
-
 
   useEffect(() => {
     dispatch(fetchFriendsThunk());
     dispatch(fetchFriendRequestThunk());
     handleCountUnreadMsg();
     return () => {
-      setCountUnreadMsg(0)
-    }
+      setCountUnreadMsg(0);
+    };
   }, [socket]);
 
+  const handleDeleteFriend = (friendId) => {
+    dispatch(removeFriendThunk(friendId));
+    dispatch(fetchFriendsThunk());
+
+  };
 
   return (
     <View style={styles.container}>
@@ -109,10 +134,7 @@ export default function FriendScreen({ navigation }) {
               <Feather name="users" style={styles.icon} />
               <Text style={[styles.text]}>Lời mời kết bạn</Text>
             </View>
-            {
-              countUnreadMsg > 0 && <Notification number={countUnreadMsg} />
-            }
-            
+            {countUnreadMsg > 0 && <Notification number={countUnreadMsg} />}
           </View>
         )}
       </Pressable>
@@ -138,9 +160,25 @@ export default function FriendScreen({ navigation }) {
         >
           {friends.map((friend) => {
             if (friend.sender.id !== user?.id) {
-              return <FriendItem key={friend.sender.id} friend={friend.sender} navigation={navigation} />;
+              return (
+                <FriendItem
+                  key={friend.sender.id}
+                  friend={friend.sender}
+                  navigation={navigation}
+                  friendId={friend.id}
+                  handleDeleteFriend={handleDeleteFriend}
+                />
+              );
             } else {
-              return <FriendItem key={friend.receiver.id} friend={friend.receiver} navigation={navigation} />
+              return (
+                <FriendItem
+                  key={friend.receiver.id}
+                  friend={friend.receiver}
+                  navigation={navigation}
+                  handleDeleteFriend={handleDeleteFriend}
+                  friendId={friend.id}
+                />
+              );
             }
           })}
         </ScrollView>

@@ -50,6 +50,9 @@ export default function ModalAddMember({
   const { friends } = useSelector((state: RootState) => state.friends);
   const { user } = useContext(AuthContext);
   const dispatch = useDispatch<AppDispatch>();
+  const groupItem = useSelector((state: RootState) =>
+    selectGroupById(state, group.id)
+  );
 
 
   useEffect(() => {
@@ -86,19 +89,25 @@ export default function ModalAddMember({
 
 
   const handleAddUserToGroup = () => {
-    users.forEach((user) => {
-      addGroupRecipient({ id: group.id, username: user })
-        .then(({ data }) => {
-          console.log(data);
-        })
-        .catch((err) => {
-          console.log(err);
-          setShowAlertErr(true)
-        });
-    });
-    setShowAlert(true);
+    if(groupItem.owner.id === user.id) {
+      users.forEach((user) => {
+        addGroupRecipient({ id: group.id, username: user })
+          .then(({ data }) => {
+            console.log(data);
+          })
+          .catch((err) => {
+            console.log(err);
+            
+          });
+      });
+      setShowAlert(true);
     setVisible(false);
     dispatch(fetchGroupsThunk())
+    } else {
+      setShowAlertErr(true)
+    }
+    
+    
   };
 
   const handleFormatFriendAddGroup = () => {
@@ -217,7 +226,7 @@ export default function ModalAddMember({
       <AwesomeAlert
         show={showAlertErr}
         showProgress={false}
-        title="Thêm thành viên thất bại"
+        title="Thêm thành viên thất bại!!! Bạn không phải là trưởng nhóm"
         closeOnTouchOutside={true}
         closeOnHardwareBackPress={false}
         showCancelButton={false}

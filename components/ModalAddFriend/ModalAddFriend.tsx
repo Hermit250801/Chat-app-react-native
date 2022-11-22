@@ -12,8 +12,7 @@ import { createFriendRequest } from "../../utils/api"
 
 const FriendRequestSchema = Yup.object().shape({
   username: Yup.string()
-    .email("Email không đúng!!")
-    .required("Vui lòng nhập email!!"),
+    .required("Vui lòng nhập username!!"),
 });
 
 export default function ModalAddFriend({ visible, setVisible, navigation }) {
@@ -86,7 +85,7 @@ export default function ModalAddFriend({ visible, setVisible, navigation }) {
                   </View>
 
                   <View>
-                    {errors.username && <Text style={styles.textError} >Email không đúng định dạng</Text>}
+                    {errors.username && <Text style={styles.textError} >Vui lòng nhập username</Text>}
                   </View>
                 </View>
               )}

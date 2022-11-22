@@ -36,6 +36,10 @@ export default function Conversation({
     const currentDate = new Date();
     const lastMessageTime = new Date(conversation.lastMessageSentAt);
     const daysBetween = Math.abs(currentDate.getDate() - lastMessageTime.getDate());
+
+    if(conversation.lastMessageSentAt === null) {
+      return "Hình ảnh!";
+    }
     if (daysBetween === 0) {
       const hours = parseInt(
         Moment(conversation.lastMessageSentAt)
@@ -150,10 +154,11 @@ export default function Conversation({
               </View>
             )) || (
               <Text style={styles.messageDescText}>
-                {(conversation.lastMessageSent.content.length >=
+                {(conversation.lastMessageSent.content !== null && conversation.lastMessageSent.content.length >=
                   MESSAGE_LENGTH_MAX &&
                   conversation.lastMessageSent.content.slice(0, 20) + "...") ||
-                  conversation.lastMessageSent.content}
+                  conversation.lastMessageSent.content || 'Hình ảnh'
+                  }
               </Text>
             )}
 

@@ -3,6 +3,9 @@ import {
   Text,
   StyleSheet,
   Image,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
   TouchableOpacity,
   Pressable,
 } from "react-native";
@@ -13,13 +16,18 @@ import { CDN_URL } from "../../utils/constants";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
-import { updateUserProfile } from "../../utils/api";
+import { updateStatusMessage, updateUserProfile } from "../../utils/api";
+
+import Feather from "react-native-vector-icons/Feather";
+
 export default function ProfileScreen() {
   const [imagePreview, setImagePreview] = useState(null);
   const [backgroundPreview, setBackgroundPreview] = useState(null);
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [openModalError, setOpenModalError] = useState(false);
   const { user } = useContext(AuthContext);
+  const [isEditStatus, setIsEditStatus] = useState(false);
+  const [status, setStatus] = useState(user.presence.statusMessage);
 
   const avatar =
     (user.profile.avatar !== null &&
@@ -65,7 +73,7 @@ export default function ProfileScreen() {
       formData.append("avatar", { uri: localUri, name: filename, type });
 
       const { data: updatedUser } = await updateUserProfile(formData);
-      console.log(updatedUser)
+      console.log(updatedUser);
       setImagePreview(result.uri);
     }
 
@@ -106,6 +114,12 @@ export default function ProfileScreen() {
     console.log(updatedUser);
   };
 
+  const handleChangeStatus = async () => {
+    updateStatusMessage({statusMessage: status })
+    setIsEditStatus(false);
+    setStatus(status);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -144,6 +158,28 @@ export default function ProfileScreen() {
             <Text
               style={styles.name}
             >{`${user.firstName} ${user.lastName}`}</Text>
+          </View>
+
+          <View style={styles.statusContainer}>
+            {isEditStatus ? (
+              <TextInput
+                placeholder={"About"}
+                value={status}
+                onChangeText={(e) => setStatus(e)}
+                onSubmitEditing={handleChangeStatus}
+              />
+            ) : (
+              <Text style={styles.status}>
+                About: {`${status && status}`}
+              </Text>
+            )}
+
+            <TouchableOpacity
+              onPress={() => setIsEditStatus(true)}
+              onTouchOutside={() => setIsEditStatus(false)}
+            >
+              <Feather color={"#000"} size={20} name="edit-2" />
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -216,6 +252,19 @@ const styles = StyleSheet.create({
     bottom: -50,
     left: "50%",
     right: "50%",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: -110,
+    left: "50%",
+    transform: [{ translateX: -50 }],
+  },
+  status: {
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 18,
   },
   nameContainer: {
     position: "absolute",

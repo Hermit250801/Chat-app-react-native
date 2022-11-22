@@ -23,7 +23,7 @@ import * as Yup from "yup";
 import { createFriendRequest, fetchGroups } from "../../utils/api";
 import CheckBox from "../CheckBox/CheckBox";
 import { AuthContext } from "../../utils/context/AuthContext";
-import { createGroupThunk, fetchGroupsThunk } from "../../store/groupSlice";
+import { createGroupThunk, fetchGroupsThunk, selectGroupById } from "../../store/groupSlice";
 
 const FriendRequestSchema = Yup.object().shape({
   title: Yup.string().required("Vui lòng nhập tên nhóm!!"),
@@ -37,6 +37,8 @@ export default function ModalAddGroup({ visible, setVisible, navigation }) {
   const { friends } = useSelector((state: RootState) => state.friends);
   const { user } = useContext(AuthContext);
   const dispatch = useDispatch<AppDispatch>();
+
+  
 
   const handleOnPressCheckBox = (friend, index) => {
     setSelected((prev) => [...prev, index]);
@@ -55,7 +57,8 @@ export default function ModalAddGroup({ visible, setVisible, navigation }) {
   };
 
   const handleCreateGroup = (title: string) => {
-    dispatch(createGroupThunk({ users, title }))
+    if(users.length >= 2) {
+      dispatch(createGroupThunk({ users, title }))
       .unwrap()
       .then(() => {
         console.log("Success Create Group");
@@ -67,6 +70,10 @@ export default function ModalAddGroup({ visible, setVisible, navigation }) {
         console.log(err.message);
         console.log("Error create group");
       });
+    } else {
+      setShowAlertErr(true);
+    }
+   
   };
 
   return (
@@ -171,7 +178,7 @@ export default function ModalAddGroup({ visible, setVisible, navigation }) {
       <AwesomeAlert
         show={showAlertErr}
         showProgress={false}
-        title="Tạo nhóm thất bại"
+        title="Tạo nhóm thất bại! Vui lòng chọn thêm ít nhất 2 thành viên"
         closeOnTouchOutside={true}
         closeOnHardwareBackPress={false}
         showCancelButton={false}
