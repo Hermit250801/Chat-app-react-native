@@ -64,6 +64,8 @@ export default function GroupInfo({ navigation, route }) {
       );
       dispatch(fetchGroupsThunk());
       navigation.navigate("Nhóm");
+    } else {
+      
     }
   };
 

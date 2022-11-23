@@ -20,47 +20,73 @@ import { updateStatusMessage, updateUserProfile } from "../../utils/api";
 
 import Feather from "react-native-vector-icons/Feather";
 
-export default function ProfileComponent({ route }) {
+export default function ProfileComponent({ route, navigation }) {
   const { user } = route.params;
 
-  console.log(user)
+  const handleViewImageAvatar = () => {
+    if (user.profile && user.profile.avatar) {
+      navigation.navigate("Image", {
+        uri: CDN_URL.BASE.concat(user.profile.avatar),
+        navigation: navigation,
+      });
+    } else {
+      navigation.navigate("Image", {
+        imageDefault: require("../../assets/user.png"),
+        navigation: navigation,
+      });
+    }
+  };
 
-  const avatar =
-    (user.profile && user.profile.avatar !== null &&
-      CDN_URL.BASE.concat(user.profile.avatar)) ||
-    require("../../assets/user.png");
-
-  const background =
-    (user.profile && user.profile.banner !== null &&
-      CDN_URL.BASE.concat(user.profile.banner)) ||
-    require("../../assets/user.png");
+  const handleViewImageBanner = () => {
+    if (user.profile && user.profile.avatar) {
+      navigation.navigate("Image", {
+        uri: CDN_URL.BASE.concat(user.profile.banner),
+        navigation: navigation,
+      });
+    } else {
+      navigation.navigate("Image", {
+        imageDefault: require("../../assets/user.png"),
+        navigation: navigation,
+      });
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="arrow-back" color="#fff" size={36} />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" color="#fff" size={36} />
+        </Pressable>
         <SimpleLineIcons name="options" color="#fff" size={36} />
       </View>
 
       <View style={styles.body}>
-        <TouchableOpacity style={styles.background}>
+        <TouchableOpacity
+          style={styles.background}
+          onPress={handleViewImageBanner}
+        >
           <Image
             source={
-              (user.profile && user.profile.banner && {
-                uri: CDN_URL.BASE.concat(user.profile.banner),
-              }) ||
+              (user.profile &&
+                user.profile.banner && {
+                  uri: CDN_URL.BASE.concat(user.profile.banner),
+                }) ||
               require("../../assets/user.png")
             }
             style={styles.banner}
           />
         </TouchableOpacity>
         <View>
-          <TouchableOpacity style={styles.avatarContainer}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={handleViewImageAvatar}
+          >
             <Image
               source={
-                (user.profile && user.profile.avatar && {
-                  uri: CDN_URL.BASE.concat(user.profile.avatar),
-                }) ||
+                (user.profile &&
+                  user.profile.avatar && {
+                    uri: CDN_URL.BASE.concat(user.profile.avatar),
+                  }) ||
                 require("../../assets/user.png")
               }
               style={styles.avatar}
@@ -77,15 +103,12 @@ export default function ProfileComponent({ route }) {
             <Text style={styles.status}>
               About:{" "}
               {`${
-                (user.profile && user.profile.about !== null &&
+                (user.profile &&
+                  user.profile.about !== null &&
                   user.profile.about) ||
                 "Không có giới thiệu bản thân"
               }`}
             </Text>
-
-            <TouchableOpacity>
-              <Feather color={"#000"} size={20} name="edit-2" />
-            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -134,7 +157,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -110,
     left: "50%",
-    transform: [{ translateX: -50 }],
+    transform: [{ translateX: -120 }],
   },
   status: {
     textAlign: "center",

@@ -22,7 +22,7 @@ import GroupMessages from "./components/Group/GroupMessages";
 import GroupInfo from "./components/Group/GroupInfo";
 import MemberScreen from "./screens/GroupScreen/MemberScreen";
 import ImageComponent from "./components/Image/ImageComponent";
-import ProfileComponent from "./components/ProfileComponent/ProfileScreen";
+import ProfileComponent from "./components/ProfileComponent/ProfileComponent";
 
 const Stack = createNativeStackNavigator();
 

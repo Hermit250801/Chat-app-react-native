@@ -4,17 +4,17 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { CDN_URL } from "../../utils/constants";
 
 export default function ImageComponent({ route }) {
-  const { image, navigation } = route.params;
+  const { image, navigation, uri, imageDefault } = route.params;
+  
   return (
     <View style={styles.container}>
       <Pressable style={styles.backBtn} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={30} color={"#fff"} />
       </Pressable>
       <Image
-        key={image.key}
-        source={{
-          uri: CDN_URL.ORIGINAL.concat(image.key),
-        }}
+        source={ image || uri && {
+          uri: image && CDN_URL.ORIGINAL.concat(image.key) || uri,
+        } || imageDefault}
         style={styles.attachment}
       />
     </View>
