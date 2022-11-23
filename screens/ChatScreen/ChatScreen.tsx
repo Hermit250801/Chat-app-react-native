@@ -5,46 +5,46 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
-} from "react-native";
-import { useEffect, useState, useRef, useContext, useCallback } from "react";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import Entypo from "react-native-vector-icons/Entypo";
-import { TypingAnimation } from "react-native-typing-animation";
+} from 'react-native';
+import { useEffect, useState, useRef, useContext, useCallback } from 'react';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+import { TypingAnimation } from 'react-native-typing-animation';
 
-import InputChat from "../../components/InputChat/InputChat";
-import { useDispatch, useSelector } from "react-redux";
-import { AxiosError } from "axios";
+import InputChat from '../../components/InputChat/InputChat';
+import { useDispatch, useSelector } from 'react-redux';
+import { AxiosError } from 'axios';
 
-import { AppDispatch, RootState } from "../../store";
-import { fetchMessagesThunk } from "../../store/messages/messageThunk";
-import { Conversation, MessageEventPayload } from "../../utils/types";
-import { SocketContext } from "../../utils/context/SocketContext";
-import { selectType, updateType } from "../../store/selectedSlice";
+import { AppDispatch, RootState } from '../../store';
+import { fetchMessagesThunk } from '../../store/messages/messageThunk';
+import { Conversation, MessageEventPayload } from '../../utils/types';
+import { SocketContext } from '../../utils/context/SocketContext';
+import { selectType, updateType } from '../../store/selectedSlice';
 
 import {
   addConversation,
   updateConversation,
-} from "../../store/conversationSlice";
+} from '../../store/conversationSlice';
 import {
   addMessage,
   deleteMessage,
   editMessage,
-} from "../../store/messages/messageSlice";
+} from '../../store/messages/messageSlice';
 import {
   addSystemMessage,
   clearAllMessages,
-} from "../../store/system-messages/systemMessagesSlice";
-import { AuthContext } from "../../utils/context/AuthContext";
-import Messages from "../../components/Messages/Messages";
+} from '../../store/system-messages/systemMessagesSlice';
+import { AuthContext } from '../../utils/context/AuthContext';
+import Messages from '../../components/Messages/Messages';
 
-import { LogBox } from "react-native";
-import { createMessage } from "../../utils/api";
-import { fetchGroupsThunk } from "../../store/groupSlice";
+import { LogBox } from 'react-native';
+import { createMessage } from '../../utils/api';
+import { fetchGroupsThunk } from '../../store/groupSlice';
 
-import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import EmojiSelector, { Categories } from 'react-native-emoji-selector';
 
 LogBox.ignoreLogs([
-  "Non-serializable values were found in the navigation state",
+  'Non-serializable values were found in the navigation state',
 ]);
 
 export default function ChatScreen({ navigation, route }) {
@@ -71,11 +71,11 @@ export default function ChatScreen({ navigation, route }) {
     if (!conversationId) return;
     if (!trimmedContent) return;
     const formData = new FormData();
-    formData.append("id", conversationId);
-    trimmedContent && formData.append("content", trimmedContent);
+    formData.append('id', conversationId);
+    trimmedContent && formData.append('content', trimmedContent);
     const params = { id: conversationId, content: trimmedContent, formData };
     try {
-      if (selectedType === "private") {
+      if (selectedType === 'private') {
         await createMessage(conversationId, selectedType, formData);
         dispatch(clearAllMessages());
         scrollDown.current.scrollToEnd({ animated: true });
@@ -87,17 +87,17 @@ export default function ChatScreen({ navigation, route }) {
         dispatch(
           addSystemMessage({
             id: messageCounter,
-            level: "error",
-            content: "You are being rate limited. Slow down.",
+            level: 'error',
+            content: 'You are being rate limited. Slow down.',
           })
         );
       } else if (axiosError.response?.status === 404) {
         dispatch(
           addSystemMessage({
             id: messageCounter,
-            level: "error",
+            level: 'error',
             content:
-              "The recipient is not in your friends list or they may have blocked you.",
+              'The recipient is not in your friends list or they may have blocked you.',
           })
         );
       }
@@ -109,19 +109,19 @@ export default function ChatScreen({ navigation, route }) {
       clearTimeout(timer);
       setTimer(
         setTimeout(() => {
-          console.log("User stopped typing");
-          socket.emit("onTypingStop", { conversationId });
+          console.log('User stopped typing');
+          socket.emit('onTypingStop', { conversationId });
           setIsTyping(false);
         }, 2000)
       );
     } else {
       setIsTyping(true);
-      socket.emit("onTypingStart", { conversationId });
+      socket.emit('onTypingStart', { conversationId });
     }
   };
 
   useEffect(() => {
-    dispatch(updateType("private"));
+    dispatch(updateType('private'));
     dispatch(fetchMessagesThunk(conversationId));
     dispatch(fetchGroupsThunk());
     return () => {
@@ -130,51 +130,51 @@ export default function ChatScreen({ navigation, route }) {
   }, []);
 
   useEffect(() => {
-    socket.on("onMessage", (payload: MessageEventPayload) => {
-      console.log("Message Received");
+    socket.on('onMessage', (payload: MessageEventPayload) => {
+      console.log('Message Received');
       const { conversation, message } = payload;
       console.log(conversation, message);
       dispatch(addMessage(payload));
       dispatch(updateConversation(conversation));
       scrollDown.current.scrollToEnd({ animated: true });
     });
-    socket.emit("onConversationJoin", { conversationId });
-    socket.on("userJoin", () => {
-      console.log("userJoin");
+    socket.emit('onConversationJoin', { conversationId });
+    socket.on('userJoin', () => {
+      console.log('userJoin');
     });
-    socket.on("userLeave", () => {
-      console.log("userLeave");
+    socket.on('userLeave', () => {
+      console.log('userLeave');
     });
-    socket.on("onConversation", (payload: Conversation) => {
-      console.log("Received onConversation Event");
+    socket.on('onConversation', (payload: Conversation) => {
+      console.log('Received onConversation Event');
       console.log(payload);
       dispatch(addConversation(payload));
     });
-    socket.on("onMessageUpdate", (message) => {
-      console.log("onMessageUpdate received");
+    socket.on('onMessageUpdate', (message) => {
+      console.log('onMessageUpdate received');
       console.log(message);
       dispatch(editMessage(message));
     });
-    socket.on("onMessageDelete", (payload) => {
-      console.log("Message Deleted");
+    socket.on('onMessageDelete', (payload) => {
+      console.log('Message Deleted');
       console.log(payload);
       dispatch(deleteMessage(payload));
     });
-    socket.on("onTypingStart", () => {
-      console.log("onTypingStart: User has started typing...");
+    socket.on('onTypingStart', () => {
+      console.log('onTypingStart: User has started typing...');
       setIsRecipientTyping(true);
     });
-    socket.on("onTypingStop", () => {
-      console.log("onTypingStop: User has stopped typing...");
+    socket.on('onTypingStop', () => {
+      console.log('onTypingStop: User has stopped typing...');
       setIsRecipientTyping(false);
     });
     return () => {
-      socket.emit("onConversationLeave", { conversationId });
-      socket.off("userJoin");
-      socket.off("userLeave");
-      socket.off("onTypingStart");
-      socket.off("onTypingStop");
-      socket.off("onMessageUpdate");
+      socket.emit('onConversationLeave', { conversationId });
+      socket.off('userJoin');
+      socket.off('userLeave');
+      socket.off('onTypingStart');
+      socket.off('onTypingStop');
+      socket.off('onMessageUpdate');
     };
   }, [conversationId]);
 
@@ -185,7 +185,7 @@ export default function ChatScreen({ navigation, route }) {
           <Pressable
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? "#93989a" : "transparent",
+                backgroundColor: pressed ? '#93989a' : 'transparent',
               },
               styles.button,
             ]}
@@ -204,7 +204,7 @@ export default function ChatScreen({ navigation, route }) {
           <Pressable
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? "#93989a" : "transparent",
+                backgroundColor: pressed ? '#93989a' : 'transparent',
               },
               styles.button,
             ]}
@@ -260,85 +260,85 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    height: "8%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: '8%',
   },
   body: {
     flex: 0.92,
-    flexDirection: "column-reverse",
-    justifyContent: "flex-end",
+    flexDirection: 'column-reverse',
+    justifyContent: 'flex-end',
   },
   messageContainer: {
-    flexDirection: "column-reverse",
-    justifyContent: "flex-start",
+    flexDirection: 'column-reverse',
+    justifyContent: 'flex-start',
   },
   message: {
-    maxWidth: "80%",
-    alignSelf: "flex-start",
+    maxWidth: '80%',
+    alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 100,
     marginVertical: 6,
   },
   sender: {
-    backgroundColor: "#e6e8f0",
+    backgroundColor: '#e6e8f0',
     borderBottomLeftRadius: 14,
   },
   sendTimeMessage: {
     fontSize: 10,
-    fontWeight: "600",
-    color: "#b0b6c4",
+    fontWeight: '600',
+    color: '#b0b6c4',
   },
   senderText: {},
   receiver: {
-    backgroundColor: "#3ab4f2",
+    backgroundColor: '#3ab4f2',
     borderRadius: 100,
     borderBottomEndRadius: 12,
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
   receiverSendTime: {
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
   receiverText: {
-    color: "#fff",
+    color: '#fff',
   },
   button: {
     borderRadius: 100,
-    borderColor: "#a4a8b7",
+    borderColor: '#a4a8b7',
     borderWidth: 1,
     height: 40,
     paddingHorizontal: 4,
     paddingVertical: 2,
   },
   userName: {
-    color: "#232531",
-    fontWeight: "600",
-    textAlign: "center",
+    color: '#232531',
+    fontWeight: '600',
+    textAlign: 'center',
     fontSize: 18,
   },
   status: {
-    color: "#87d97b",
-    fontWeight: "600",
-    textAlign: "center",
+    color: '#87d97b',
+    fontWeight: '600',
+    textAlign: 'center',
     fontSize: 18,
   },
   typingStatusContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingVertical: 4,
   },
   typingStatus: {
-    color: "#3ab4f2",
+    color: '#3ab4f2',
     fontSize: 12,
   },
   footer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 8,
     left: 14,
     right: 14,
   },
   emojiContainer: {
-    position: "absolute",
-    top: 0
-  }
+    position: 'absolute',
+    top: 0,
+  },
 });
