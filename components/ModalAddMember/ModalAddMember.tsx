@@ -50,17 +50,15 @@ export default function ModalAddMember({
   const { friends } = useSelector((state: RootState) => state.friends);
   const { user } = useContext(AuthContext);
   const dispatch = useDispatch<AppDispatch>();
+
   const groupItem = useSelector((state: RootState) =>
     selectGroupById(state, group.id)
   );
-
 
   useEffect(() => {
     let newGroupItem = group.users.filter(item => {
       return item.id !== user.id
     })
-
-    console.log(newGroupItem)
 
     newGroupItem.forEach((item) => {
       if (!usersGroup.includes(item.id)) {

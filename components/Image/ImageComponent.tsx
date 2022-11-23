@@ -13,8 +13,10 @@ export default function ImageComponent({ route }) {
       </Pressable>
       <Image
         source={
-          (uri && {
-            uri: (image && CDN_URL.ORIGINAL.concat(image.key)) || uri,
+          (image && {
+            uri: (image && CDN_URL.ORIGINAL.concat(image.key))
+          } || uri && {
+            uri:  uri,
           }) ||
           imageDefault
         }
