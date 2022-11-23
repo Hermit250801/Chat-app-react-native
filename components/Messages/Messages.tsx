@@ -10,41 +10,41 @@ import {
   TouchableWithoutFeedback,
   Image,
   Pressable,
-} from "react-native";
-import { useRef, useState, useContext, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+} from 'react-native';
+import { useRef, useState, useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   deleteMessage,
   selectConversationMessage,
-} from "../../store/messages/messageSlice";
-import { AppDispatch, RootState } from "../../store";
+} from '../../store/messages/messageSlice';
+import { AppDispatch, RootState } from '../../store';
 
-import Moment from "moment";
-import { selectType } from "../../store/selectedSlice";
-import { DeleteMessageParams, EditMessagePayload } from "../../utils/types";
+import Moment from 'moment';
+import { selectType } from '../../store/selectedSlice';
+import { DeleteMessageParams, EditMessagePayload } from '../../utils/types';
 import {
   deleteMessageThunk,
   editMessageThunk,
-} from "../../store/messages/messageThunk";
-import { setIsEditing } from "../../store/messageContainerSlice";
+} from '../../store/messages/messageThunk';
+import { setIsEditing } from '../../store/messageContainerSlice';
 import {
   deleteGroupMessageThunk,
   editGroupMessageThunk,
-} from "../../store/groupMessageSlice";
-import { selectGroupById } from "../../store/groupSlice";
-import { AuthContext } from "../../utils/context/AuthContext";
-import { CDN_URL } from "../../utils/constants";
+} from '../../store/groupMessageSlice';
+import { selectGroupById } from '../../store/groupSlice';
+import { AuthContext } from '../../utils/context/AuthContext';
+import { CDN_URL } from '../../utils/constants';
 
 export default function Messages({
   conversationId,
   currentUser,
   scrollDown,
   groupMessages,
-  navigation
+  navigation,
 }) {
   const [openModal, setOpenModal] = useState(null);
   const [editMessage, setEditMessage] = useState(null);
-  const [textMessage, setTextMessage] = useState("");
+  const [textMessage, setTextMessage] = useState('');
 
   const conversationMessages = useSelector((state: RootState) =>
     selectConversationMessage(state, conversationId!)
@@ -61,8 +61,8 @@ export default function Messages({
   );
 
   const avatar =
-    (user.profile.avatar !== null &&
-      CDN_URL.BASE.concat(user.profile.avatar)) ||
+    (user?.profile?.avatar !== null &&
+      CDN_URL.BASE.concat(user?.profile?.avatar)) ||
     undefined;
 
   const handleLastMessageAt = (item) => {
@@ -74,12 +74,12 @@ export default function Messages({
 
     if (daysBetween === 0) {
       const hours = parseInt(
-        Moment(item.createdAt).format("HH:mm").toString().split(":")[0]
+        Moment(item.createdAt).format('HH:mm').toString().split(':')[0]
       );
       const mintues = Moment(item.createdAt)
-        .format("HH:mm")
+        .format('HH:mm')
         .toString()
-        .split(":")[1];
+        .split(':')[1];
       if (hours >= 12) {
         return `${hours}:${mintues} PM`;
       } else {
@@ -88,7 +88,7 @@ export default function Messages({
     } else if (daysBetween <= 7) {
       return `${daysBetween} ngày trước`;
     } else {
-      const date = Moment(item.createdAt).format("DD/MM/YYYY");
+      const date = Moment(item.createdAt).format('DD/MM/YYYY');
       return `${date}`;
     }
   };
@@ -98,21 +98,21 @@ export default function Messages({
   };
 
   const handleEditMessage = (item) => {
-    console.log("Edit message");
+    console.log('Edit message');
     setEditMessage(item.id);
     setTextMessage(item.content);
     setOpenModal(null);
   };
 
   const handleDeleteMessage = (item) => {
-    console.log("Delete message");
+    console.log('Delete message');
     const params: DeleteMessageParams = {
       id: conversationId!,
       messageId: item.id,
     };
     console.log(params);
-    console.log("Delete...", conversationType);
-    conversationType === "private"
+    console.log('Delete...', conversationType);
+    conversationType === 'private'
       ? dispatch(deleteMessageThunk(params))
       : dispatch(deleteGroupMessageThunk(params));
 
@@ -120,18 +120,18 @@ export default function Messages({
   };
 
   const handleOpenImage = (image) => {
-    navigation.navigate("Image", {
+    navigation.navigate('Image', {
       image: image,
-      navigation: navigation
-    })
-  }
+      navigation: navigation,
+    });
+  };
 
   const onSubmitEditText = (e, item) => {
     setEditMessage(null);
     console.log(e.nativeEvent.text);
-    console.log("Submitting Edit");
+    console.log('Submitting Edit');
     if (!e.nativeEvent.text) {
-      console.log("messageBeingEdited is undefined... Returning");
+      console.log('messageBeingEdited is undefined... Returning');
       return;
     }
     const params: EditMessagePayload = {
@@ -140,8 +140,8 @@ export default function Messages({
       content: e.nativeEvent.text,
     };
     console.log(params);
-    console.log("Editing...", conversationType);
-    conversationType === "private"
+    console.log('Editing...', conversationType);
+    conversationType === 'private'
       ? dispatch(editMessageThunk(params)).finally(() =>
           dispatch(setIsEditing(false))
         )
@@ -157,7 +157,7 @@ export default function Messages({
 
   useEffect(() => {
     attachments.forEach((image) => {
-      console.log("Attachment IMage: ", image);
+      console.log('Attachment IMage: ', image);
     });
   }, []);
 
@@ -173,7 +173,7 @@ export default function Messages({
             scrollDown.current.scrollToEnd({ animated: true })
           }
         >
-          {(conversationType === "private" && (
+          {(conversationType === 'private' && (
             <TouchableWithoutFeedback onPress={handleTouchOutside}>
               <View style={styles.messageContainer}>
                 {conversationMessages?.messages.map((item) => {
@@ -233,7 +233,9 @@ export default function Messages({
 
                                 <View style={styles.attachments}>
                                   {item.attachments.map((image) => (
-                                    <Pressable  onPress={() => handleOpenImage(image)}>
+                                    <Pressable
+                                      onPress={() => handleOpenImage(image)}
+                                    >
                                       <Image
                                         key={image.key}
                                         source={{
@@ -287,8 +289,8 @@ export default function Messages({
           )) || (
             <TouchableWithoutFeedback onPress={handleTouchOutside}>
               <View style={styles.messageContainer}>
-                {groupMessages.messages &&
-                  groupMessages.messages.map((message) => (
+                {groupMessages?.messages &&
+                  groupMessages?.messages.map((message) => (
                     <View style={[styles.positionRelative]} key={message.id}>
                       <View
                         style={[
@@ -303,10 +305,10 @@ export default function Messages({
                             source={
                               (message.author.profile !== null && {
                                 uri: CDN_URL.BASE.concat(
-                                  message.author.profile.avatar
+                                  message.author.profile?.avatar
                                 ),
                               }) ||
-                              require("../../assets/user.png")
+                              require('../../assets/user.png')
                             }
                             style={styles.avatar}
                           />
@@ -328,7 +330,7 @@ export default function Messages({
                           <Image
                             source={
                               (avatar && { uri: avatar }) ||
-                              require("../../assets/user.png")
+                              require('../../assets/user.png')
                             }
                             style={styles.avatar}
                           />
@@ -363,12 +365,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   positionRelative: {
-    position: "relative",
+    position: 'relative',
   },
   attachments: {
-    flexDirection: "row",
-    maxWidth: "80%",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    maxWidth: '80%',
+    flexWrap: 'wrap',
   },
   attachment: {
     height: 80,
@@ -376,20 +378,20 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   senderContainer: {
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
   },
   receiverContainer: {
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   modal: {
-    position: "absolute",
+    position: 'absolute',
     top: -15,
     right: 100,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: 10,
   },
   avatar: {
@@ -404,112 +406,112 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   btnEditMessage: {
-    backgroundColor: "#119dfc",
+    backgroundColor: '#119dfc',
   },
   space: {
-    borderColor: "#bcb3b3",
+    borderColor: '#bcb3b3',
     borderBottomWidth: 1,
     marginVertical: 4,
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   btnDeleteMessage: {
-    backgroundColor: "#fe5051",
+    backgroundColor: '#fe5051',
   },
   btnText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: '#fff',
+    fontWeight: '600',
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    height: "8%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: '8%',
   },
   body: {
     flex: 0.92,
   },
   messageContainer: {
     flexGrow: 1,
-    flexDirection: "column-reverse",
-    justifyContent: "flex-end",
+    flexDirection: 'column-reverse',
+    justifyContent: 'flex-end',
   },
   message: {
-    maxWidth: "80%",
-    alignSelf: "flex-start",
+    maxWidth: '80%',
+    alignSelf: 'flex-start',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 100,
     marginVertical: 6,
   },
   sender: {
-    backgroundColor: "#e6e8f0",
+    backgroundColor: '#e6e8f0',
     borderBottomLeftRadius: 14,
   },
   sendTimeMessage: {
     fontSize: 10,
-    fontWeight: "600",
-    color: "#b0b6c4",
+    fontWeight: '600',
+    color: '#b0b6c4',
   },
   senderText: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
   },
   receiver: {
-    backgroundColor: "#3ab4f2",
+    backgroundColor: '#3ab4f2',
     borderRadius: 100,
     borderBottomEndRadius: 12,
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
   receiverSendTime: {
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
   receiverText: {
-    color: "#fff",
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    color: '#fff',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   button: {
     borderRadius: 100,
-    borderColor: "#a4a8b7",
+    borderColor: '#a4a8b7',
     borderWidth: 1,
     height: 40,
     paddingHorizontal: 4,
     paddingVertical: 2,
   },
   userName: {
-    color: "#232531",
-    fontWeight: "600",
-    textAlign: "center",
+    color: '#232531',
+    fontWeight: '600',
+    textAlign: 'center',
     fontSize: 18,
   },
   userNameText: {
-    color: "#232531",
-    textAlign: "left",
+    color: '#232531',
+    textAlign: 'left',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   status: {
-    color: "#87d97b",
-    fontWeight: "600",
-    textAlign: "center",
+    color: '#87d97b',
+    fontWeight: '600',
+    textAlign: 'center',
     fontSize: 18,
   },
   typingStatusContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingVertical: 4,
   },
   typingStatus: {
-    color: "#3ab4f2",
+    color: '#3ab4f2',
     fontSize: 12,
   },
   footer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 8,
     left: 14,
     right: 46,
   },
   emojiContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
