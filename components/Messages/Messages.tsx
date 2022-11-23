@@ -325,6 +325,18 @@ export default function Messages({
                             style={styles.userNameText}
                           >{`${message.author.firstName} ${message.author.lastName}`}</Text>
                           <Text>{message.content}</Text>
+                          <View style={styles.attachments}>
+                            {message.attachments.map((image) => (
+                              <Pressable key={image.key} onPress={() => handleOpenImage(image)}>
+                                <Image
+                                  source={{
+                                    uri: CDN_URL.ORIGINAL.concat(image.key),
+                                  }}
+                                  style={styles.attachment}
+                                />
+                              </Pressable>
+                            ))}
+                          </View>
                         </TouchableOpacity>
                         {message.author.id === user.id && (
                           <Image

@@ -206,6 +206,7 @@ export default function GroupMessages({ route, navigation }) {
           scrollDown={scrollDown}
           key={groupItem.id}
           groupMessages={groupMessages}
+          navigation={navigation}
         />
       </View>
 
