@@ -6,12 +6,14 @@ import Feather from "react-native-vector-icons/Feather";
 import { CDN_URL } from "../../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { selectConversationById } from "../../store/conversationSlice";
+import { createConversationThunk, selectConversationById } from "../../store/conversationSlice";
 import { AuthContext } from "../../utils/context/AuthContext";
 import {
   fetchFriendsThunk,
   removeFriendThunk,
 } from "../../store/friends/friendsThunk";
+
+import AwesomeAlert from "react-native-awesome-alerts";
 
 export default function FriendItem({
   friend,
@@ -29,6 +31,7 @@ export default function FriendItem({
   const dispatch = useDispatch<AppDispatch>();
 
   const [openModal, setOpenModal] = useState(false);
+  const [alertModal, setAlertModal] = useState(false);
   const handleRemoveFriend = () => {
     handleDeleteFriend(friendId);
     setOpenModal(false);
@@ -40,8 +43,35 @@ export default function FriendItem({
     });
   };
 
+  console.log(friend);
+
+  const handleGetOrCreateConversation = () => {
+    const data = {
+      username: friend.username,
+      message: "Hello",
+    };
+    console.log("Handle Create conversation")
+    setOpenModal(false);
+    const conversation = conversations.forEach((conv) => {
+      if (
+        conv.creator.id === user.id && conv.recipient.id === friend.id ||
+        conv.creator.id === friend.id && conv.recipient.id === user.id||
+        conv.recipient.id === user.id && conv.creator.id === friend.id ||
+        conv.recipient.id === friend.id && conv.creator.id === friend.id
+      ) {
+        return navigation.navigate('ChatOne', {
+          conversationId: conv.id,
+          currentUser: friend,
+        });
+      }
+    });
+
+    dispatch(createConversationThunk(data));
+    setAlertModal(true)
+  };
+
   return (
-    <Pressable onPress={() => setOpenModal(false)}>
+    <Pressable onPress={() => handleGetOrCreateConversation()}>
       <Pressable
         style={({ pressed }) => [
           styles.container,
@@ -50,6 +80,7 @@ export default function FriendItem({
           },
         ]}
         onLongPress={() => setOpenModal(!openModal)}
+        onPress={handleGetOrCreateConversation}
       >
         <View style={styles.row}>
           <Image
@@ -115,6 +146,22 @@ export default function FriendItem({
           </Pressable>
         </View>
       )}
+
+      <AwesomeAlert
+        show={alertModal}
+        showProgress={false}
+        title="Đã gửi lời chào đến bạn bè"
+        message="Hãy qua mục tin nhắn để tiến hành trò chuyện"
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="Ok"
+        confirmButtonColor="#567af3"
+        onConfirmPressed={() => {
+          setAlertModal(false);
+        }}
+      />
     </Pressable>
   );
 }
@@ -187,5 +234,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "600",
-  }
+  },
 });

@@ -243,7 +243,7 @@ export default function Messages({
                                             image.key
                                           ),
                                         }}
-                                        style={styles.avatar}
+                                        style={styles.attachment}
                                       />
                                     </Pressable>
                                   ))}
@@ -383,11 +383,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     maxWidth: '80%',
     flexWrap: 'wrap',
+    padding: 4,
   },
   attachment: {
     height: 80,
     width: 80,
     marginLeft: 12,
+    marginBottom: 6
   },
   row: {
     flexDirection: 'row',
@@ -446,6 +448,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexDirection: 'column-reverse',
     justifyContent: 'flex-end',
+    padding: 4,
   },
   message: {
     maxWidth: '80%',
