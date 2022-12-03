@@ -1,2 +1,16 @@
 # Chat-app-react-native
 global.FormData = global.originalFormData
+![StartScreen](https://user-images.githubusercontent.com/72304343/205434602-883d46fe-2c2d-497d-9a3d-52d75842aebd.jpg)
+![LoginScreen](https://user-images.githubusercontent.com/72304343/205434607-378b336c-b521-4b63-97d7-1b357d2d3c01.jpg)
+![RegisterScreen](https://user-images.githubusercontent.com/72304343/205434609-408b358c-035e-49a6-995c-5d260bd458cc.jpg)
+![ChatScreen](https://user-images.githubusercontent.com/72304343/205434614-176c09d9-786b-4566-8461-9db061995332.jpg)
+![FriendScreen](https://user-images.githubusercontent.com/72304343/205434617-f6255fbb-7055-4794-bc3b-bf16f27f6158.jpg)
+![GroupScreen](https://user-images.githubusercontent.com/72304343/205434621-46656456-4fde-4b68-b972-88bd0ad8e482.jpg)
+![GroupInfoScreen](https://user-images.githubusercontent.com/72304343/205434623-bd0b3d45-dd6d-490e-b5bb-a931dd2aa16f.jpg)
+![MessageScreen](https://user-images.githubusercontent.com/72304343/205434627-0ef7ea30-49dc-4a55-9119-87e235ed96d6.jpg)
+![MessageGroupScreen](https://user-images.githubusercontent.com/72304343/205434629-306bb6bd-5308-4fe6-9b75-d17552657c00.jpg)
+![ReceiveFriendRequestScreen](https://user-images.githubusercontent.com/72304343/205434633-9dfbb5f2-2f9a-4c48-9b77-b5c99a3f5fd0.jpg)
+![AddFriendModal](https://user-images.githubusercontent.com/72304343/205434638-a0078a72-e8cc-4e7e-8ef2-09aafd6a1e78.jpg)
+![AddGroupModal](https://user-images.githubusercontent.com/72304343/205434639-11614a6a-591f-4d18-89bf-6f0aab698544.jpg)
+![AddMemberModal](https://user-images.githubusercontent.com/72304343/205434645-25c07ce5-a9b8-4ee9-b5c2-b209b1bc456f.jpg)
+![UserProfileScreen](https://user-images.githubusercontent.com/72304343/205434649-df9a5467-582c-4c08-9f40-e386ef9c15c5.jpg)
